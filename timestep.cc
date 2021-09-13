@@ -41,6 +41,9 @@ namespace timestep {
       }
     }
 
+#define MAX(a,b) (a < b ? b: a)
+#define MIN(a,b) (a < b ? a: b)
+
   /// Only update position by velocity
   template<typename Real>
     static void position_timestep(size_t n_charges,
@@ -54,14 +57,14 @@ namespace timestep {
     {
       for (size_t i = 0; i < n_charges; i++) {
         x[i] += dt * u[i];
-        x[i] = std::max(x[i], (Real) -1);
-        x[i] = std::min(x[i], (Real) 1);
+        x[i] = MAX(x[i], (Real) -1);
+        x[i] = MIN(x[i], (Real) 1);
         y[i] += dt * v[i];
-        y[i] = std::max(y[i], (Real) -1);
-        y[i] = std::min(y[i], (Real) 1);
+        y[i] = MAX(y[i], (Real) -1);
+        y[i] = MIN(y[i], (Real) 1);
         z[i] += dt * w[i];
-        z[i] = std::max(z[i], (Real) -1);
-        z[i] = std::min(z[i], (Real) 1);
+        z[i] = MAX(z[i], (Real) -1);
+        z[i] = MIN(z[i], (Real) 1);
       }
     }
 
