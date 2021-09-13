@@ -21,4 +21,5 @@ CHANGED_FILES="$(git diff-files --stat --)"
 test -z "$CHANGED_FILES" || (echo "!!! Changed files not committed (exiting):" && echo $CHANGED_FILES && exit 1) || exit
 
 ACC_FILE="${PWD}/acc_data_${PBS_JOBID%%.*}.json"
-cd ./acc && (bash acc_data.sh >> $ACC_FILE) && cd $PBS_O_WORKDIR
+OMP_FILE="${PWD}/omp_data_${PBS_JOBID%%.*}.json"
+cd ./acc && (bash acc_data.sh >> $ACC_FILE) && cd ../openmp && (bash omp_data.sh >> $OMP_FILE) && cd ${PBS_O_WORKDIR}
