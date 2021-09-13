@@ -16,9 +16,9 @@ for inputs in "1000 5" "1000 10" "100 15" "10 20" "10 25" "10 30" "10 35" "10 40
   else
     echo ","
   fi
-  ./simulation float $inputs
+  ./main float $inputs
   echo ","
-  ./simulation double $inputs
+  ./main double $inputs
 done
 
 echo "]"
