@@ -6,3 +6,4 @@ main
 *.pbs.o*
 *.pbs.e*
 *.log
+*.json
