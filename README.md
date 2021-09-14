@@ -123,6 +123,6 @@ Make a report `report.pdf` that includes your two figures.  You should also comm
 
 - On canvas, your "submission" will just be the name of your repository.
 
-- The TA will submit your `bash.pbs` script to verify your code.
+- The TA will submit your `data.pbs` script to verify your code.
 
 
