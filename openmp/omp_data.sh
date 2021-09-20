@@ -16,9 +16,9 @@ for inputs in "100000 5" "1000 10" "100 15" "10 20" "10 25" "10 30" "10 35" "10 
   else
     echo ","
   fi
-  OMP_NUM_THREADS=$PBS_NP ./main float $inputs
+  OMP_PROC_BIND=close OMP_NUM_THREADS=$PBS_NP ./main float $inputs
   echo ","
-  OMP_NUM_THREADS=$PBS_NP ./main double $inputs
+  OMP_PROC_BIND=close OMP_NUM_THREADS=$PBS_NP ./main double $inputs
 done
 
 echo "]"

@@ -25,6 +25,8 @@ namespace state {
         // otherwise regularly spaced on [-1, 1]^3
         Real incr = ((Real) 2) / (n_c - 1);
 
+        size_t i, j, k = 0;
+        #pragma omp parallel for collapse(3)
         for (size_t i = 0, index = 0; i < n_c; i++) {
           for (size_t j = 0; j < n_c; j++) {
             for (size_t k = 0; k < n_c; k++, index++) {
@@ -37,6 +39,8 @@ namespace state {
       }
 
       // all velocities initially zero
+      size_t i = 0;
+      #pragma omp parallel for shared (_n_charges, _u, _v, _w) private (i)
       for (size_t i = 0; i < _n_charges; i++) {
         _u[i] = _v[i] = _w[i] = 0;
       }

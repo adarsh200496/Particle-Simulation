@@ -16,20 +16,18 @@ namespace timestep {
                                   Real *__restrict__ v,
                                   Real *__restrict__ w)
     {
+      #pragma acc kernels
       for (size_t i = 0; i < n_charges; i++) {
         Real d_u = 0;
         Real d_v = 0;
         Real d_w = 0;
         for (size_t j = 0; j < n_charges; j++) {
-          if (i == j) {
-            continue;
-          }
           Real diff_x = x[i] - x[j];
           Real diff_y = y[i] - y[j];
           Real diff_z = z[i] - z[j];
           Real r2 = diff_x * diff_x + diff_y * diff_y + diff_z * diff_z;
           Real r = std::sqrt(r2);
-          Real factor = dt / (r2 * r);
+          Real factor = (i - j) * dt / (r2 * r * (i - j));
 
           d_u += factor * diff_x;
           d_v += factor * diff_y;
@@ -55,6 +53,7 @@ namespace timestep {
                                   const Real *__restrict__ v,
                                   const Real *__restrict__ w)
     {
+      #pragma acc kernels
       for (size_t i = 0; i < n_charges; i++) {
         x[i] += dt * u[i];
         x[i] = MAX(x[i], (Real) -1);
@@ -83,23 +82,27 @@ namespace timestep {
       if (n_steps == 0) {
         return;
       }
-      position_timestep<Real>(n_charges, 0.5 * dt,
-                              x, y, z,
-                              u, v, w);
-      velocity_timestep<Real>(n_charges, dt,
-                              x, y, z,
-                              u, v, w);
-      for (size_t i = 0; i < n_steps - 1; i++) {
-        position_timestep<Real>(n_charges, dt,
+
+      #pragma acc data copy(x[:n_charges], y[:n_charges], z[:n_charges], u[:n_charges], v[:n_charges], w[:n_charges])
+      {
+        position_timestep<Real>(n_charges, 0.5 * dt,
                                 x, y, z,
                                 u, v, w);
         velocity_timestep<Real>(n_charges, dt,
                                 x, y, z,
                                 u, v, w);
+        for (size_t i = 0; i < n_steps - 1; i++) {
+          position_timestep<Real>(n_charges, dt,
+                                  x, y, z,
+                                  u, v, w);
+          velocity_timestep<Real>(n_charges, dt,
+                                  x, y, z,
+                                  u, v, w);
+        }
+        position_timestep<Real>(n_charges, 0.5 * dt,
+                                x, y, z,
+                                u, v, w);
       }
-      position_timestep<Real>(n_charges, 0.5 * dt,
-                              x, y, z,
-                              u, v, w);
     }
 
   template

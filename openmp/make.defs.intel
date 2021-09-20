@@ -1,5 +1,5 @@
 CXX=icpc
 CXXVERFLAGS=-std=c++11
 CXXINFOFLAGS=-g -Wall
-CXXOPTFLAGS=
-OMPFLAGS=
+CXXOPTFLAGS=-O3 -march=native -ffast-math
+OMPFLAGS=-fopenmp

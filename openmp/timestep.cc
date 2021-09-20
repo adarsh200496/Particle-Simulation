@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cmath>
 #include <algorithm>
+#include <omp.h>
 
 namespace timestep {
 
@@ -16,20 +17,22 @@ namespace timestep {
                                   Real *__restrict__ v,
                                   Real *__restrict__ w)
     {
-      for (size_t i = 0; i < n_charges; i++) {
+      size_t i = 0;
+      #pragma omp parallel for shared (n_charges, dt, x, y, z, u, v, w) private (i) schedule(static)
+      for (i = 0; i < n_charges; i++) {
         Real d_u = 0;
         Real d_v = 0;
         Real d_w = 0;
-        for (size_t j = 0; j < n_charges; j++) {
-          if (i == j) {
-            continue;
-          }
+
+        size_t j = 0;
+        #pragma omp parallel for shared (n_charges, dt, x, y, z, u, v, w, i) private(j) reduction (+:d_u,d_v,d_w) schedule(static)
+        for (j = 0; j < n_charges; j++) {
           Real diff_x = x[i] - x[j];
           Real diff_y = y[i] - y[j];
           Real diff_z = z[i] - z[j];
           Real r2 = diff_x * diff_x + diff_y * diff_y + diff_z * diff_z;
           Real r = std::sqrt(r2);
-          Real factor = dt / (r2 * r);
+          Real factor = (i - j) * dt / (r2 * r * (i - j));
 
           d_u += factor * diff_x;
           d_v += factor * diff_y;
@@ -55,7 +58,9 @@ namespace timestep {
                                   const Real *__restrict__ v,
                                   const Real *__restrict__ w)
     {
-      for (size_t i = 0; i < n_charges; i++) {
+      size_t i = 0;
+      #pragma omp parallel for shared (n_charges, dt, x, y, z, u, v, w) private (i) schedule(static)
+      for (i = 0; i < n_charges; i++) {
         x[i] += dt * u[i];
         x[i] = MAX(x[i], (Real) -1);
         x[i] = MIN(x[i], (Real) 1);
@@ -89,7 +94,9 @@ namespace timestep {
       velocity_timestep<Real>(n_charges, dt,
                               x, y, z,
                               u, v, w);
-      for (size_t i = 0; i < n_steps - 1; i++) {
+
+      size_t i = 0;
+      for (i = 0; i < n_steps - 1; i++) {
         position_timestep<Real>(n_charges, dt,
                                 x, y, z,
                                 u, v, w);
